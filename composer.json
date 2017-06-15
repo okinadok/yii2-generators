@@ -1,0 +1,23 @@
+{
+  "name": "paulosales/yii2-generators",
+  "description": "Yii2 code generators using semantic-ui and w2ui libraries",
+  "type": "yii2-extension",
+  "keywords": ["yii2", "w2ui", "extension", "semantic-ui", "generator", "crud"],
+  "homepage": "https://github.com/paulosales/yii2-generators",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Paulo Rogério Sales Santos",
+      "email": "paulosales@gmail.com",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "bower-asset/paulosales-w2ui": "1.5.0"
+  },
+  "autoload": {
+        "psr-4": {
+            "paulosales\\generators\\": ""
+        }
+    }
+}
