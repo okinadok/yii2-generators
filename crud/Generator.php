@@ -43,7 +43,7 @@ class Generator extends \yii\gii\Generator
      */
     public function getName()
     {
-        return 'TorresERP CRUD Generator';
+        return 'PauloSales CRUD Generator';
     }
 
     /**
