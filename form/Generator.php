@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\gii\generators\form;
+namespace paulosales\generators\form;
 
 use Yii;
 use yii\base\Model;

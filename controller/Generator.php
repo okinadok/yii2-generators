@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\gii\generators\controller;
+namespace paulosales\generators\controller;
 
 use Yii;
 use yii\gii\CodeFile;
@@ -49,7 +49,7 @@ class Generator extends \yii\gii\Generator
      */
     public function getName()
     {
-        return 'Controller Generator';
+        return 'PauloSales Controller Generator';
     }
 
     /**
