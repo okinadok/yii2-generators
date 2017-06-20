@@ -112,7 +112,7 @@ class Generator extends \yii\gii\Generator
             'baseControllerClass' => 'This is the class that the new CRUD controller class will extend from.
                 You should provide a fully qualified class name, e.g., <code>yii\web\Controller</code>.',
             'indexWidgetType' => 'This is the widget type to be used in the index page to display list of the models.
-                You may choose either <code>GridView</code> or <code>ListView</code>',
+                You may choose either <code>GridView</code> or <code>ListView</code>. This configuration is not used with w2ui code templates.',
             'searchModelClass' => 'This is the name of the search model class to be generated. You should provide a fully
                 qualified namespaced class name, e.g., <code>app\models\PostSearch</code>.',
             'enablePjax' => 'This indicates whether the generator should wrap the <code>GridView</code> or <code>ListView</code>
