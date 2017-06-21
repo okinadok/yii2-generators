@@ -29,6 +29,7 @@ class Generator extends \yii\gii\Generator
     public $controllerClass;
     public $viewPath;
     public $baseControllerClass = 'yii\web\Controller';
+    public $apiControllerClass;
     public $indexWidgetType = 'grid';
     public $searchModelClass = '';
     /**
@@ -61,15 +62,15 @@ class Generator extends \yii\gii\Generator
     public function rules()
     {
         return array_merge(parent::rules(), [
-            [['controllerClass', 'modelClass', 'searchModelClass', 'baseControllerClass'], 'filter', 'filter' => 'trim'],
+            [['controllerClass', 'modelClass', 'searchModelClass', 'baseControllerClass', 'apiControllerClass'], 'filter', 'filter' => 'trim'],
             [['modelClass', 'controllerClass', 'baseControllerClass', 'indexWidgetType'], 'required'],
             [['searchModelClass'], 'compare', 'compareAttribute' => 'modelClass', 'operator' => '!==', 'message' => 'Search Model Class must not be equal to Model Class.'],
-            [['modelClass', 'controllerClass', 'baseControllerClass', 'searchModelClass'], 'match', 'pattern' => '/^[\w\\\\]*$/', 'message' => 'Only word characters and backslashes are allowed.'],
+            [['modelClass', 'controllerClass', 'apiControllerClass', 'baseControllerClass', 'searchModelClass'], 'match', 'pattern' => '/^[\w\\\\]*$/', 'message' => 'Only word characters and backslashes are allowed.'],
             [['modelClass'], 'validateClass', 'params' => ['extends' => BaseActiveRecord::className()]],
-            [['baseControllerClass'], 'validateClass', 'params' => ['extends' => Controller::className()]],
+            [['baseControllerClass'], 'validateClass', 'params' => ['extends' => Controller::className()]],            
             [['controllerClass'], 'match', 'pattern' => '/Controller$/', 'message' => 'Controller class name must be suffixed with "Controller".'],
             [['controllerClass'], 'match', 'pattern' => '/(^|\\\\)[A-Z][^\\\\]+Controller$/', 'message' => 'Controller class name must start with an uppercase letter.'],
-            [['controllerClass', 'searchModelClass'], 'validateNewClass'],
+            [['controllerClass', 'searchModelClass', 'apiControllerClass'], 'validateNewClass'],
             [['indexWidgetType'], 'in', 'range' => ['grid', 'list']],
             [['modelClass'], 'validateModelClass'],
             [['enableI18N', 'enablePjax'], 'boolean'],
@@ -88,6 +89,7 @@ class Generator extends \yii\gii\Generator
             'controllerClass' => 'Controller Class',
             'viewPath' => 'View Path',
             'baseControllerClass' => 'Base Controller Class',
+            'apiControllerClass' => 'Api Controller Class',
             'indexWidgetType' => 'Widget Used in Index Page',
             'searchModelClass' => 'Search Model Class',
             'enablePjax' => 'Enable Pjax',
@@ -111,6 +113,10 @@ class Generator extends \yii\gii\Generator
                 to <code>@app/views/ControllerID</code>',
             'baseControllerClass' => 'This is the class that the new CRUD controller class will extend from.
                 You should provide a fully qualified class name, e.g., <code>yii\web\Controller</code>.',
+            'apiControllerClass' => 'This is the name of the api controller class to be generated. You should
+                provide a fully qualified namespaced class (e.g. <code>api\controllers\PostController</code>),
+                and class name should be in CamelCase with an uppercase first letter. Make sure the class
+                is using the same namespace as specified by your application\'s controllerNamespace property.',
             'indexWidgetType' => 'This is the widget type to be used in the index page to display list of the models.
                 You may choose either <code>GridView</code> or <code>ListView</code>. This configuration is not used with w2ui code templates.',
             'searchModelClass' => 'This is the name of the search model class to be generated. You should provide a fully
@@ -126,7 +132,7 @@ class Generator extends \yii\gii\Generator
      */
     public function requiredTemplates()
     {
-        return ['controller.php'];
+        return ['controller.php', 'controllerRest.php'];
     }
 
     /**
@@ -159,6 +165,12 @@ class Generator extends \yii\gii\Generator
 
         $files = [
             new CodeFile($controllerFile, $this->render('controller.php')),
+        ];
+
+        $apiControllerFile = Yii::getAlias('@' . str_replace('\\', '/', ltrim($this->apiControllerClass, '\\')) . '.php');
+
+        $files = [
+            new CodeFile($apiControllerFile, $this->render('controllerRest.php')),
         ];
 
         if (!empty($this->searchModelClass)) {
