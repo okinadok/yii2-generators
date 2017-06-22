@@ -8,9 +8,11 @@ $gridId = "grid" . Inflector::camel2words($baseModelName);
 
 echo '<?php
     use ' . $generator->modelClass . ';
+    use paulosales\w2ui\assets\w2uiAsset;
 
     $model = new ' . $baseModelName . '();
     $labels = $model->attributeLabels();
+    $w2uiBundle = w2uiAsset::register($this);
 ?>';
 
 ?>
@@ -20,8 +22,12 @@ echo '<?php
 <script type="text/javascript">
 
 $(function () {
+    w2utils.locale('<?= "<?= \$w2uiBundle->baseUrl; ?>" ?>/locale/pt-br.json');
+    w2utils.settings.dataType = 'RESTFULLJSON';
     $('#<?=$gridId?>').w2grid({ 
         name: '<?=$gridId?>', 
+        recid: 'id',
+        url: 'http://localhost/api/usuarios',
         show: { 
             toolbar: true,
             footer: true,
@@ -52,9 +58,7 @@ $(function () {
                     w2ui.<?=$gridId?>.add({ recid: w2ui.<?=$gridId?>.records.length + 1 });
                 }
             }
-        },
-        records: [
-        ]
+        }
     });    
 });
 </script>
