@@ -4,6 +4,7 @@ use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
 
 $baseModelName = StringHelper::basename($generator->modelClass);
+$modelFriendlyName = $generator->generateString(Inflector::pluralize(Inflector::camel2words($baseModelName)));
 $gridId = "grid" . Inflector::camel2words($baseModelName);
 
 echo '<?php
@@ -13,6 +14,13 @@ echo '<?php
     $model = new ' . $baseModelName . '();
     $labels = $model->attributeLabels();
     $w2uiBundle = w2uiAsset::register($this);
+
+    $modelFriendlyName = ' . $modelFriendlyName . ';
+    $serviceName = ' . strtolower($modelFriendlyName) . ';
+
+    $apiUrl = rtrim(Yii::$app->params["apiUrl"], "/") . "/";
+
+    $this->title = $modelFriendlyName;
 ?>';
 
 ?>
@@ -27,7 +35,7 @@ $(function () {
     $('#<?=$gridId?>').w2grid({ 
         name: '<?=$gridId?>', 
         recid: 'id',
-        url: 'http://localhost/api/usuarios',
+        url: '<?= "<?= \$apiUrl . \$serviceName; ?>" ?>',
         show: { 
             toolbar: true,
             footer: true,
