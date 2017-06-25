@@ -38,8 +38,7 @@ $(function () {
         url: '<?= "<?= \$apiUrl . \$serviceName; ?>" ?>',
         show: { 
             toolbar: true,
-            footer: true,
-            toolbarSave: true
+            footer: true
         },
         columns: [     
 <?php
@@ -59,13 +58,67 @@ $(function () {
         ],
         toolbar: {
             items: [
-                { id: 'add', type: 'button', caption: 'Adicionar', icon: 'w2ui-icon-plus' }
+                { type: 'break' },
+                { id: 'add', type: 'button', caption: 'Adicionar', icon: 'fa fa-plus', tooltip: 'Adiciona um novo registro na grid.' },
+                { type: 'break' },
+                { id: 'cancel', type: 'button', caption: 'Cancelar', icon: 'fa fa-times', disabled: true, tooltip: 'Cancela as alterações nos registros não salvos.' },
+                { type: 'break' },
+                { id: 'save', type: 'button', caption: 'Salvar', icon: 'fa fa-floppy-o', disabled: true, tooltip: 'Salva as alterações dos registros.' },
+                { type: 'break' },
+                { id: 'delete', type: 'button', caption: 'Remover', icon: 'fa fa-trash-o', disabled: false, tooltip: 'Remove os registros selecionados.' }
             ],
             onClick: function (event) {
                 if (event.target == 'add') {
-                    w2ui.<?=$gridId?>.add({ recid: w2ui.<?=$gridId?>.records.length + 1 });
+                    var id = 'new_' + w2ui.gridUsuarios.records.length + 1;
+                    w2ui.gridUsuarios.add({ recid: id });
+                    w2ui.gridUsuarios.select(id);
+                    w2ui.gridUsuarios.editField(id, 1);
+                    w2ui.gridUsuarios.toolbar.get('save').disabled = false;
+                    w2ui.gridUsuarios.toolbar.get('cancel').disabled = false;
+                    w2ui.gridUsuarios.toolbar.get('add').disabled = true;
+                    w2ui.gridUsuarios.toolbar.get('delete').disabled = true;
+                    w2ui.gridUsuarios.toolbar.refresh();
+                }
+                else if (event.target == 'cancel') {
+                    for(var i = 0; i < w2ui.gridUsuarios.records.length; i++) {
+                        var strId = w2ui.gridUsuarios.records[i].recid + '';
+                        if(strId.startsWith("new_")) {
+                            w2ui.gridUsuarios.records.splice(i,1);
+                        }
+                        else if(w2ui.gridUsuarios.records[i].w2ui) {
+                            w2ui.gridUsuarios.records[i].w2ui.changes = {};
+                        }
+                    }
+                    w2ui.gridUsuarios.toolbar.get('save').disabled = true;
+                    w2ui.gridUsuarios.toolbar.get('cancel').disabled = true;
+                    w2ui.gridUsuarios.toolbar.get('add').disabled = false;
+                    w2ui.gridUsuarios.toolbar.get('delete').disabled = false;
+                    w2ui.gridUsuarios.refresh();
+                }
+                else if (event.target == 'save') {
+                    w2ui.gridUsuarios.save();
+                    w2ui.gridUsuarios.toolbar.get('save').disabled = true;
+                    w2ui.gridUsuarios.toolbar.get('cancel').disabled = true;
+                    w2ui.gridUsuarios.toolbar.get('add').disabled = false;
+                    w2ui.gridUsuarios.toolbar.get('delete').disabled = false;
+                    w2ui.gridUsuarios.toolbar.refresh();
+                }
+                else if (event.target == 'delete') {
+                    w2ui.gridUsuarios.delete();
+                    w2ui.gridUsuarios.toolbar.get('save').disabled = true;
+                    w2ui.gridUsuarios.toolbar.get('cancel').disabled = true;
+                    w2ui.gridUsuarios.toolbar.get('add').disabled = false;
+                    w2ui.gridUsuarios.toolbar.get('delete').disabled = false;
+                    w2ui.gridUsuarios.toolbar.refresh();
                 }
             }
+        },
+        onEditField: function(event) {
+            w2ui.gridUsuarios.toolbar.get('save').disabled = false;
+            w2ui.gridUsuarios.toolbar.get('cancel').disabled = false;
+            w2ui.gridUsuarios.toolbar.get('add').disabled = true;
+            w2ui.gridUsuarios.toolbar.get('delete').disabled = true;
+            w2ui.gridUsuarios.toolbar.refresh();
         }
     });    
 });
