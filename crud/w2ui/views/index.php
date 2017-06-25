@@ -4,7 +4,7 @@ use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
 
 $baseModelName = StringHelper::basename($generator->modelClass);
-$modelFriendlyName = $generator->generateString(Inflector::pluralize(Inflector::camel2words($baseModelName)));
+$modelFriendlyName = Inflector::pluralize(Inflector::camel2words($baseModelName));
 $gridId = "grid" . Inflector::camel2words($baseModelName);
 
 echo '<?php
@@ -15,8 +15,8 @@ echo '<?php
     $labels = $model->attributeLabels();
     $w2uiBundle = w2uiAsset::register($this);
 
-    $modelFriendlyName = ' . $modelFriendlyName . ';
-    $serviceName = ' . strtolower($modelFriendlyName) . ';
+    $modelFriendlyName = ' . $generator->generateString($modelFriendlyName) . ';
+    $serviceName = ' . strtolower($generator->generateString($modelFriendlyName . '/grid')) . ';
 
     $apiUrl = rtrim(Yii::$app->params["apiUrl"], "/") . "/";
 
@@ -31,7 +31,7 @@ echo '<?php
 
 $(function () {
     w2utils.locale('<?= "<?= \$w2uiBundle->baseUrl; ?>" ?>/locale/pt-br.json');
-    w2utils.settings.dataType = 'RESTFULLJSON';
+    w2utils.settings.dataType = 'RESTFULL';
     $('#<?=$gridId?>').w2grid({ 
         name: '<?=$gridId?>', 
         recid: 'id',
@@ -45,15 +45,15 @@ $(function () {
     $tableColumns = [];
     if (($tableSchema = $generator->getTableSchema()) === false) {
         foreach ($generator->getColumnNames() as $name) {
-            $tableColumns[] = "\t\t\t{ field: '$name', caption: '<?php echo \$labels[\"$name\"];?>', resizable: true, sortable: true}";
+            $tableColumns[] = "\t\t\t{ field: '$name', caption: '<?php echo \$labels[\"$name\"];?>', resizable: true, sortable: true, editable: {type: 'text'} }";
         }
     } else {
         foreach ($tableSchema->columns as $column) {
             $format = $generator->generateColumnFormat($column);
-            $tableColumns[] = "\t\t\t{ field: '$column->name', caption: '<?php echo \$labels[\"$column->name\"];?>', resizable: true, sortable: true}";
+            $tableColumns[] = "\t\t\t{ field: '$column->name', caption: '<?php echo \$labels[\"$column->name\"];?>', resizable: true, sortable: true, editable: {type: 'text'}}";
         }
     }
-    echo implode(",\r\n", $tableColumns);
+    echo implode(",\r", $tableColumns)."\r";
 ?>
         ],
         toolbar: {
@@ -69,56 +69,56 @@ $(function () {
             ],
             onClick: function (event) {
                 if (event.target == 'add') {
-                    var id = 'new_' + w2ui.gridUsuarios.records.length + 1;
-                    w2ui.gridUsuarios.add({ recid: id });
-                    w2ui.gridUsuarios.select(id);
-                    w2ui.gridUsuarios.editField(id, 1);
-                    w2ui.gridUsuarios.toolbar.get('save').disabled = false;
-                    w2ui.gridUsuarios.toolbar.get('cancel').disabled = false;
-                    w2ui.gridUsuarios.toolbar.get('add').disabled = true;
-                    w2ui.gridUsuarios.toolbar.get('delete').disabled = true;
-                    w2ui.gridUsuarios.toolbar.refresh();
+                    var id = 'new_' + w2ui.<?=$gridId?>.records.length + 1;
+                    w2ui.<?=$gridId?>.add({ recid: id });
+                    w2ui.<?=$gridId?>.select(id);
+                    w2ui.<?=$gridId?>.editField(id, 1);
+                    w2ui.<?=$gridId?>.toolbar.get('save').disabled = false;
+                    w2ui.<?=$gridId?>.toolbar.get('cancel').disabled = false;
+                    w2ui.<?=$gridId?>.toolbar.get('add').disabled = true;
+                    w2ui.<?=$gridId?>.toolbar.get('delete').disabled = true;
+                    w2ui.<?=$gridId?>.toolbar.refresh();
                 }
                 else if (event.target == 'cancel') {
-                    for(var i = 0; i < w2ui.gridUsuarios.records.length; i++) {
-                        var strId = w2ui.gridUsuarios.records[i].recid + '';
+                    for(var i = 0; i < w2ui.<?=$gridId?>.records.length; i++) {
+                        var strId = w2ui.<?=$gridId?>.records[i].recid + '';
                         if(strId.startsWith("new_")) {
-                            w2ui.gridUsuarios.records.splice(i,1);
+                            w2ui.<?=$gridId?>.records.splice(i,1);
                         }
-                        else if(w2ui.gridUsuarios.records[i].w2ui) {
-                            w2ui.gridUsuarios.records[i].w2ui.changes = {};
+                        else if(w2ui.<?=$gridId?>.records[i].w2ui) {
+                            w2ui.<?=$gridId?>.records[i].w2ui.changes = {};
                         }
                     }
-                    w2ui.gridUsuarios.toolbar.get('save').disabled = true;
-                    w2ui.gridUsuarios.toolbar.get('cancel').disabled = true;
-                    w2ui.gridUsuarios.toolbar.get('add').disabled = false;
-                    w2ui.gridUsuarios.toolbar.get('delete').disabled = false;
-                    w2ui.gridUsuarios.refresh();
+                    w2ui.<?=$gridId?>.toolbar.get('save').disabled = true;
+                    w2ui.<?=$gridId?>.toolbar.get('cancel').disabled = true;
+                    w2ui.<?=$gridId?>.toolbar.get('add').disabled = false;
+                    w2ui.<?=$gridId?>.toolbar.get('delete').disabled = false;
+                    w2ui.<?=$gridId?>.refresh();
                 }
                 else if (event.target == 'save') {
-                    w2ui.gridUsuarios.save();
-                    w2ui.gridUsuarios.toolbar.get('save').disabled = true;
-                    w2ui.gridUsuarios.toolbar.get('cancel').disabled = true;
-                    w2ui.gridUsuarios.toolbar.get('add').disabled = false;
-                    w2ui.gridUsuarios.toolbar.get('delete').disabled = false;
-                    w2ui.gridUsuarios.toolbar.refresh();
+                    w2ui.<?=$gridId?>.save();
+                    w2ui.<?=$gridId?>.toolbar.get('save').disabled = true;
+                    w2ui.<?=$gridId?>.toolbar.get('cancel').disabled = true;
+                    w2ui.<?=$gridId?>.toolbar.get('add').disabled = false;
+                    w2ui.<?=$gridId?>.toolbar.get('delete').disabled = false;
+                    w2ui.<?=$gridId?>.toolbar.refresh();
                 }
                 else if (event.target == 'delete') {
-                    w2ui.gridUsuarios.delete();
-                    w2ui.gridUsuarios.toolbar.get('save').disabled = true;
-                    w2ui.gridUsuarios.toolbar.get('cancel').disabled = true;
-                    w2ui.gridUsuarios.toolbar.get('add').disabled = false;
-                    w2ui.gridUsuarios.toolbar.get('delete').disabled = false;
-                    w2ui.gridUsuarios.toolbar.refresh();
+                    w2ui.<?=$gridId?>.delete();
+                    w2ui.<?=$gridId?>.toolbar.get('save').disabled = true;
+                    w2ui.<?=$gridId?>.toolbar.get('cancel').disabled = true;
+                    w2ui.<?=$gridId?>.toolbar.get('add').disabled = false;
+                    w2ui.<?=$gridId?>.toolbar.get('delete').disabled = false;
+                    w2ui.<?=$gridId?>.toolbar.refresh();
                 }
             }
         },
         onEditField: function(event) {
-            w2ui.gridUsuarios.toolbar.get('save').disabled = false;
-            w2ui.gridUsuarios.toolbar.get('cancel').disabled = false;
-            w2ui.gridUsuarios.toolbar.get('add').disabled = true;
-            w2ui.gridUsuarios.toolbar.get('delete').disabled = true;
-            w2ui.gridUsuarios.toolbar.refresh();
+            w2ui.<?=$gridId?>.toolbar.get('save').disabled = false;
+            w2ui.<?=$gridId?>.toolbar.get('cancel').disabled = false;
+            w2ui.<?=$gridId?>.toolbar.get('add').disabled = true;
+            w2ui.<?=$gridId?>.toolbar.get('delete').disabled = true;
+            w2ui.<?=$gridId?>.toolbar.refresh();
         }
     });    
 });
