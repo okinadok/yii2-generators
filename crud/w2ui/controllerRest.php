@@ -31,48 +31,51 @@ class <?= $apiControllerClass ?> extends ActiveController
 {
     public $modelClass = '<?= ltrim($generator->modelClass, '\\') ?>';
     
-    public function actionGetgrid() { 
-        $params = Yii::$app->getRequest()->getQueryParams(); 
- 
-        return Yii::createObject([ 
-            'class' => ActiveDataProvider::className(), 
-            'query' => <?= $modelClass ?>::find(), 
-            'pagination' => [ 
-                'pageSize' => $params['limit'], 
-                'page' => floor($params['offset']/$params['limit']) 
-            ] 
-        ]); 
-    } 
- 
-    public function actionPutgrid() { 
-        $params = Yii::$app->getRequest()->getBodyParams(); 
-        $models = []; 
-        foreach($params['changes'] as $change) { 
-            if(substr($change['recid'], 0, 4 ) == "new_") { //CREATE ONE 
-                $model = new <?= $modelClass ?>(); 
-            } 
-            else { 
-                $model = <?= $modelClass ?>::findOne($change['recid']); 
-            } 
-            $models[] = $models; 
-            $model->scenario = Model::SCENARIO_DEFAULT; 
-            $model->load($change, ''); 
-            if ($model->save() === false && !$model->hasErrors()) { 
-                throw new ServerErrorHttpException('Failed to update the object for unknown reason.'); 
-            } 
-        } 
-        return $models; 
-    } 
- 
-    public function actionDeletegrid() { 
-        $params = Yii::$app->getRequest()->getBodyParams(); 
-        $models = []; 
-        foreach($params['selected'] as $id) { 
-            $model = <?= $modelClass ?>::findOne($id); 
-            if ($model->delete() === false) { 
-                throw new ServerErrorHttpException('Failed to delete the object for unknown reason.'); 
-            } 
-        } 
-        return $models; 
-    } 
-} 
+    public function actionGetgrid() {
+        $params = Yii::$app->getRequest()->getQueryParams();
+
+        return Yii::createObject([
+            'class' => ActiveDataProvider::className(),
+            'query' => <?= $modelClass ?>::find(),
+            'pagination' => [
+                'pageSize' => $params['limit'],
+                'page' => floor($params['offset']/$params['limit'])
+            ]
+        ]);
+    }
+
+    public function actionPutgrid() {
+        $params = Yii::$app->getRequest()->getBodyParams();
+        $models = [];
+        if(isset($params['changes'])) {
+            foreach($params['changes'] as $change) {
+                if($change['recid'] == "*") { //CREATE ONE
+                    $model = new <?= $modelClass ?>();
+                }
+                else {
+                    $model = <?= $modelClass ?>::findOne($change['recid']);
+                }
+                $models[] = $model;
+                $model->scenario = Model::SCENARIO_DEFAULT;
+                $model->load($change, '');
+                if ($model->save() === false && !$model->hasErrors()) {
+                    throw new ServerErrorHttpException('Failed to update the object for unknown reason.');
+                }
+            }
+        }
+
+        return ["status"=>"success", "models"=> $models];
+    }
+
+    public function actionDeletegrid() {
+        $params = Yii::$app->getRequest()->getBodyParams();
+        $models = [];
+        foreach($params['selected'] as $id) {
+            $model = <?= $modelClass ?>::findOne($id);
+            if ($model->delete() === false) {
+                throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
+            }
+        }
+        return ["status"=>"success"];
+    }
+}
