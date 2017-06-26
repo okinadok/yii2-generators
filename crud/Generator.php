@@ -169,9 +169,7 @@ class Generator extends \yii\gii\Generator
 
         $apiControllerFile = Yii::getAlias('@' . str_replace('\\', '/', ltrim($this->apiControllerClass, '\\')) . '.php');
 
-        $files = [
-            new CodeFile($apiControllerFile, $this->render('controllerRest.php')),
-        ];
+        $files[] = new CodeFile($apiControllerFile, $this->render('controllerRest.php'));
 
         if (!empty($this->searchModelClass)) {
             $searchModel = Yii::getAlias('@' . str_replace('\\', '/', ltrim($this->searchModelClass, '\\') . '.php'));
