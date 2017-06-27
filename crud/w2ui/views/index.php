@@ -70,20 +70,19 @@ $(function () {
             ],
             onClick: function (event) {
                 if (event.target == 'add') {
-                    var id = '*';
+                    var id = '*'+(w2ui.<?=$gridId?>.records.length+1);
                     w2ui.<?=$gridId?>.add({ <?= $pkName; ?>: id });
                     w2ui.<?=$gridId?>.select(id);
                     w2ui.<?=$gridId?>.editField(id, 1);
                     w2ui.<?=$gridId?>.toolbar.get('save').disabled = false;
                     w2ui.<?=$gridId?>.toolbar.get('cancel').disabled = false;
-                    w2ui.<?=$gridId?>.toolbar.get('add').disabled = true;
                     w2ui.<?=$gridId?>.toolbar.get('delete').disabled = true;
                     w2ui.<?=$gridId?>.toolbar.refresh();
                 }
                 else if (event.target == 'cancel') {
                     for(var i = 0; i < w2ui.<?=$gridId?>.records.length; i++) {
                         var strId = w2ui.<?=$gridId?>.records[i].<?= $pkName; ?> + '';
-                        if(strId.startsWith("new_")) {
+                        if(strId.startsWith("*")) {
                             w2ui.<?=$gridId?>.records.splice(i,1);
                         }
                         else if(w2ui.<?=$gridId?>.records[i].w2ui) {
@@ -92,7 +91,6 @@ $(function () {
                     }
                     w2ui.<?=$gridId?>.toolbar.get('save').disabled = true;
                     w2ui.<?=$gridId?>.toolbar.get('cancel').disabled = true;
-                    w2ui.<?=$gridId?>.toolbar.get('add').disabled = false;
                     w2ui.<?=$gridId?>.toolbar.get('delete').disabled = false;
                     w2ui.<?=$gridId?>.refresh();
                 }
@@ -100,7 +98,6 @@ $(function () {
                     w2ui.<?=$gridId?>.save();
                     w2ui.<?=$gridId?>.toolbar.get('save').disabled = true;
                     w2ui.<?=$gridId?>.toolbar.get('cancel').disabled = true;
-                    w2ui.<?=$gridId?>.toolbar.get('add').disabled = false;
                     w2ui.<?=$gridId?>.toolbar.get('delete').disabled = false;
                     w2ui.<?=$gridId?>.toolbar.refresh();
                 }
@@ -108,7 +105,6 @@ $(function () {
                     w2ui.<?=$gridId?>.delete();
                     w2ui.<?=$gridId?>.toolbar.get('save').disabled = true;
                     w2ui.<?=$gridId?>.toolbar.get('cancel').disabled = true;
-                    w2ui.<?=$gridId?>.toolbar.get('add').disabled = false;
                     w2ui.<?=$gridId?>.toolbar.get('delete').disabled = false;
                     w2ui.<?=$gridId?>.toolbar.refresh();
                 }
@@ -117,15 +113,17 @@ $(function () {
         onEditField: function(event) {
             w2ui.<?=$gridId?>.toolbar.get('save').disabled = false;
             w2ui.<?=$gridId?>.toolbar.get('cancel').disabled = false;
-            w2ui.<?=$gridId?>.toolbar.get('add').disabled = true;
             w2ui.<?=$gridId?>.toolbar.get('delete').disabled = true;
             w2ui.<?=$gridId?>.toolbar.refresh();
         },
         onSave: function(event) {
             if(event.xhr) {
                 var response = eval("(" + event.xhr.responseText + ")");
-                if(response.models.length) {
-                    w2ui.<?=$gridId?>.get("*").<?= $pkName; ?> = response.models[0].<?= $pkName; ?>;
+                if(response.inserted) {
+                    for(var i = 0; i < response.inserted.length; i++) {
+                        var idsMap = response.inserted[i];
+                        w2ui.<?=$gridId?>.get(idsMap.oldId).<?= $pkName; ?> = idsMap.newId;
+                    }
                 }
             }
         }

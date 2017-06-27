@@ -46,25 +46,29 @@ class <?= $apiControllerClass ?> extends ActiveController
 
     public function actionPutgrid() {
         $params = Yii::$app->getRequest()->getBodyParams();
-        $models = [];
+        $inserted = [];
+        $isInserting = false;
         if(isset($params['changes'])) {
             foreach($params['changes'] as $change) {
-                if($change['recid'] == "*") { //CREATE ONE
+                $isInserting = substr($change['recid'], 0,1) == "*";
+                if($isInserting) {
                     $model = new <?= $modelClass ?>();
                 }
                 else {
                     $model = <?= $modelClass ?>::findOne($change['recid']);
                 }
-                $models[] = $model;
                 $model->scenario = Model::SCENARIO_DEFAULT;
                 $model->load($change, '');
                 if ($model->save() === false && !$model->hasErrors()) {
                     throw new ServerErrorHttpException('Failed to update the object for unknown reason.');
                 }
+                if($isInserting) {
+                    $inserted[] = ["oldId"=>$change['recid'], "newId"=>$model->getPrimaryKey()];
+                }
             }
         }
 
-        return ["status"=>"success", "models"=> $models];
+        return ["status"=>"success", "inserted"=>$inserted];
     }
 
     public function actionDeletegrid() {
