@@ -47,6 +47,7 @@ class <?= $apiControllerClass ?> extends ActiveController
     public function actionPutgrid() {
         $params = Yii::$app->getRequest()->getBodyParams();
         $inserted = [];
+        $errors = [];
         $isInserting = false;
         if(isset($params['changes'])) {
             foreach($params['changes'] as $change) {
@@ -59,27 +60,38 @@ class <?= $apiControllerClass ?> extends ActiveController
                 }
                 $model->scenario = Model::SCENARIO_DEFAULT;
                 $model->load($change, '');
-                if ($model->save() === false && !$model->hasErrors()) {
-                    throw new ServerErrorHttpException('Failed to update the object for unknown reason.');
+                if (($model->save() === false && !$model->hasErrors()) || $model->getPrimaryKey() == null) {
+                    $errors[] = ["id"=>$change['recid'], "message"=>"Failed to update the object for unknown reason."];
                 }
-                if($isInserting) {
+                else if($isInserting) {
                     $inserted[] = ["oldId"=>$change['recid'], "newId"=>$model->getPrimaryKey()];
                 }
             }
         }
 
-        return ["status"=>"success", "inserted"=>$inserted];
+        if(count($errors) > 0) {
+            return ["status"=>"error", "message"=>"There are some erros when the system try to save records.", "errors"=>$errors];
+        }
+        else {
+            return ["status"=>"success", "inserted"=>$inserted];
+        }
     }
 
     public function actionDeletegrid() {
         $params = Yii::$app->getRequest()->getBodyParams();
         $models = [];
+        $errors = [];
         foreach($params['selected'] as $id) {
             $model = <?= $modelClass ?>::findOne($id);
             if ($model->delete() === false) {
-                throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
+                $errors[] = "Failed to delete the object for unknown reason.";
             }
         }
-        return ["status"=>"success"];
+        if(count($errors) > 0) {
+            return ["status"=>"error", "message"=>"There are some erros when the system try to delete records.", "errors"=> $errors];
+        }
+        else {
+            return ["status"=>"success"];
+        }
     }
 }

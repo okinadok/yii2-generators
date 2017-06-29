@@ -46,12 +46,22 @@ $(function () {
     $tableColumns = [];
     if (($tableSchema = $generator->getTableSchema()) === false) {
         foreach ($generator->getColumnNames() as $name) {
-            $tableColumns[] = "\t\t\t{ field: '$name', caption: '<?php echo \$labels[\"$name\"];?>', resizable: true, sortable: true, editable: {type: 'text'} }";
+            if($name == $pkName) {
+                $tableColumns[] = "\t\t\t{ field: '$name', caption: '<?php echo \$labels[\"$name\"];?>', resizable: true, sortable: true }";
+            }
+            else {
+                $tableColumns[] = "\t\t\t{ field: '$name', caption: '<?php echo \$labels[\"$name\"];?>', resizable: true, sortable: true, editable: {type: 'text'} }";
+            }
         }
     } else {
         foreach ($tableSchema->columns as $column) {
             $format = $generator->generateColumnFormat($column);
-            $tableColumns[] = "\t\t\t{ field: '$column->name', caption: '<?php echo \$labels[\"$column->name\"];?>', resizable: true, sortable: true, editable: {type: 'text'}}";
+            if($column->name == $pkName) {
+                $tableColumns[] = "\t\t\t{ field: '$column->name', caption: '<?php echo \$labels[\"$column->name\"];?>', resizable: true, sortable: true}";
+            }
+            else {
+                $tableColumns[] = "\t\t\t{ field: '$column->name', caption: '<?php echo \$labels[\"$column->name\"];?>', resizable: true, sortable: true, editable: {type: 'text'}}";
+            }
         }
     }
     echo implode(",\r", $tableColumns)."\r";
