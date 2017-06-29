@@ -76,7 +76,7 @@ $(function () {
                     w2ui.<?=$gridId?>.editField(id, 1);
                     w2ui.<?=$gridId?>.toolbar.get('save').disabled = false;
                     w2ui.<?=$gridId?>.toolbar.get('cancel').disabled = false;
-                    w2ui.<?=$gridId?>.toolbar.get('delete').disabled = true;
+                    w2ui.<?=$gridId?>.toolbar.get('delete').disabled = false;
                     w2ui.<?=$gridId?>.toolbar.refresh();
                 }
                 else if (event.target == 'cancel') {
@@ -102,6 +102,15 @@ $(function () {
                     w2ui.<?=$gridId?>.toolbar.refresh();
                 }
                 else if (event.target == 'delete') {
+                    for(var i = 0; i < w2ui.<?=$gridId?>.records.length; i++) {
+                        var strId = w2ui.<?=$gridId?>.records[i].<?= $pkName; ?> + '';
+                        if(strId.startsWith("*")) {
+                            w2ui.<?=$gridId?>.records.splice(i,1);
+                        }
+                        else if(w2ui.<?=$gridId?>.records[i].w2ui) {
+                            w2ui.<?=$gridId?>.records[i].w2ui.changes = {};
+                        }
+                    }
                     w2ui.<?=$gridId?>.delete();
                     w2ui.<?=$gridId?>.toolbar.get('save').disabled = true;
                     w2ui.<?=$gridId?>.toolbar.get('cancel').disabled = true;
@@ -113,7 +122,7 @@ $(function () {
         onEditField: function(event) {
             w2ui.<?=$gridId?>.toolbar.get('save').disabled = false;
             w2ui.<?=$gridId?>.toolbar.get('cancel').disabled = false;
-            w2ui.<?=$gridId?>.toolbar.get('delete').disabled = true;
+            w2ui.<?=$gridId?>.toolbar.get('delete').disabled = false;
             w2ui.<?=$gridId?>.toolbar.refresh();
         },
         onSave: function(event) {
@@ -123,6 +132,7 @@ $(function () {
                     for(var i = 0; i < response.inserted.length; i++) {
                         var idsMap = response.inserted[i];
                         w2ui.<?=$gridId?>.get(idsMap.oldId).<?= $pkName; ?> = idsMap.newId;
+                        w2ui.<?=$gridId?>.get(idsMap.oldId).recid = idsMap.newId;
                     }
                 }
             }
