@@ -6,7 +6,8 @@ use yii\helpers\StringHelper;
 $baseModelName = StringHelper::basename($generator->modelClass);
 $modelFriendlyName = Inflector::pluralize(Inflector::camel2words($baseModelName));
 $gridId = "grid" . Inflector::camel2words($baseModelName);
-$pkName = $generator->getTableSchema()->primaryKey[0];
+$tableSchema = $generator->getTableSchema();
+$pkName = $tableSchema->primaryKey[0];
 
 echo '<?php
     use ' . $generator->modelClass . ';
@@ -44,27 +45,27 @@ $(function () {
         columns: [
 <?php
     $tableColumns = [];
-    if (($tableSchema = $generator->getTableSchema()) === false) {
-        foreach ($generator->getColumnNames() as $name) {
-            if($name == $pkName) {
-                $tableColumns[] = "\t\t\t{ field: '$name', caption: '<?php echo \$labels[\"$name\"];?>', resizable: true, sortable: true }";
-            }
-            else {
-                $tableColumns[] = "\t\t\t{ field: '$name', caption: '<?php echo \$labels[\"$name\"];?>', resizable: true, sortable: true, editable: {type: 'text'} }";
-            }
+    foreach ($tableSchema->columns as $column) {
+        if($column->name == $pkName) {
+            $tableColumns[] = "\t\t\t{ field: '$column->name', caption: '<?php echo \$labels[\"$column->name\"];?>', resizable: true, sortable: true}";
         }
-    } else {
-        foreach ($tableSchema->columns as $column) {
-            $format = $generator->generateColumnFormat($column);
-            if($column->name == $pkName) {
-                $tableColumns[] = "\t\t\t{ field: '$column->name', caption: '<?php echo \$labels[\"$column->name\"];?>', resizable: true, sortable: true}";
-            }
-            else {
-                $tableColumns[] = "\t\t\t{ field: '$column->name', caption: '<?php echo \$labels[\"$column->name\"];?>', resizable: true, sortable: true, editable: {type: 'text'}}";
-            }
+        else {
+            $tableColumns[] = "\t\t\t{ field: '$column->name', caption: '<?php echo \$labels[\"$column->name\"];?>', resizable: true, sortable: true, editable: {type: '" . $generator->getW2uiType($column->type) . "'}}";
         }
     }
+
     echo implode(",\r", $tableColumns)."\r";
+?>
+        ],
+        multiSearch: true,
+        searches: [
+<?php
+    $tableSearches = [];
+    foreach ($tableSchema->columns as $column) {
+        $tableSearches[] = "\t\t\t{ field: '$column->name', caption: '<?php echo \$labels[\"$column->name\"];?>', type: '" . $generator->getW2uiType($column->type) . "'}";
+    }
+
+    echo implode(",\r", $tableSearches)."\r";
 ?>
         ],
         toolbar: {

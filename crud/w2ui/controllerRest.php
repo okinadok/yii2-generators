@@ -22,6 +22,7 @@ use Yii;
 use <?= ltrim($generator->modelClass, '\\') ?>;
 use yii\rest\ActiveController;
 use yii\data\ActiveDataProvider; 
+use yii\db\QueryInterface;
 use yii\base\Model; 
 
 /**
@@ -31,12 +32,69 @@ class <?= $apiControllerClass ?> extends ActiveController
 {
     public $modelClass = '<?= ltrim($generator->modelClass, '\\') ?>';
     
+    private function getWhereFilters($params) {
+        $whereFilters = [];
+
+        if(isset($params["search"])) {
+            $searchs = $params["search"];
+            if(isset($searchs)) {
+                $whereFilters[] = $params["searchLogic"];
+
+                foreach($searchs as $search) {
+                    if(isset($search['value']) && $search['value'] != '') {
+                        $condition = [];
+                        if($search['operator'] == 'contains') {
+                            $condition[] = 'like';
+                            $condition[] = $search['field'];
+                            $condition[] = $search['value'];
+                        }
+                        else if($search['operator'] == 'begins') {
+                            $condition[] = 'like';
+                            $condition[] = $search['field'];
+                            $condition[] = $search['value'] . '%';
+                            $condition[] = false;
+                        }
+                        else if($search['operator'] == 'ends') {
+                            $condition[] = 'like';
+                            $condition[] = $search['field'];
+                            $condition[] = '%' . $search['value'];
+                            $condition[] = false;
+                        }
+                        else if($search['operator'] == 'is') {
+                            $condition[$search['field']] = $search['value'];
+                        }
+                        else if($search['operator'] == 'between') {
+                            $condition[] = 'between';
+                            $condition[] = $search['field'];
+                            $condition[] = $search['value'][0];
+                            $condition[] = $search['value'][1];
+                        }
+                        else if($search['operator'] == 'less') {
+                            $condition[] = '<';
+                            $condition[] = $search['field'];
+                            $condition[] = $search['value'];
+                        }
+                        else if($search['operator'] == 'more') {
+                            $condition[] = '>';
+                            $condition[] = $search['field'];
+                            $condition[] = $search['value'];
+                        }
+                        $whereFilters[] = $condition;
+                    }
+                }
+            }
+        }
+        return $whereFilters;
+    }
+
     public function actionGetgrid() {
         $params = Yii::$app->getRequest()->getQueryParams();
 
+        $whereFilters = $this->getWhereFilters($params);
+
         return Yii::createObject([
             'class' => ActiveDataProvider::className(),
-            'query' => <?= $modelClass ?>::find(),
+            'query' => <?= $modelClass ?>::find()->where($whereFilters),
             'pagination' => [
                 'pageSize' => $params['limit'],
                 'page' => floor($params['offset']/$params['limit'])

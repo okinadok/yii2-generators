@@ -536,6 +536,23 @@ class Generator extends \yii\gii\Generator
         }
     }
 
+    public function getW2uiType($abstractType) {
+        $mapTypes = [
+            'text' => ['char', 'string', 'text'],
+            'int' => ['smallint', 'integer', 'bigint'],
+            'float' => ['decimal', 'float'],
+            'money' => ['money'],
+            'checkbox' => ['boolean'],
+            'date' => ['datetime', 'timestamp', 'time', 'date'],
+        ];
+
+        foreach($mapTypes as $w2uiType => $types) {
+            if(in_array($abstractType, $types)) {
+                return $w2uiType;
+            }
+        }
+    }
+
     /**
      * @return array model column names
      */
