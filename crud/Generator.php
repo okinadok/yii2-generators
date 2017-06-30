@@ -544,6 +544,7 @@ class Generator extends \yii\gii\Generator
             'money' => ['money'],
             'checkbox' => ['boolean'],
             'date' => ['datetime', 'timestamp', 'time', 'date'],
+            'binary' => ['file'],
         ];
 
         foreach($mapTypes as $w2uiType => $types) {
