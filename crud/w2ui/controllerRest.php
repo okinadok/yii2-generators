@@ -87,14 +87,25 @@ class <?= $apiControllerClass ?> extends ActiveController
         return $whereFilters;
     }
 
+    private function getOrderFields($params) {
+        $orderFields = [];
+        if(isset($params["sort"])) {
+            foreach($params["sort"] as $sort) {
+                $orderFields[$sort['field']] = ($sort['direction']=='asc')?SORT_ASC:SORT_DESC;
+            }
+        }
+        return $orderFields;
+    }
+
     public function actionGetgrid() {
         $params = Yii::$app->getRequest()->getQueryParams();
 
         $whereFilters = $this->getWhereFilters($params);
+        $orderFields = $this->getOrderFields($params);
 
         return Yii::createObject([
             'class' => ActiveDataProvider::className(),
-            'query' => <?= $modelClass ?>::find()->where($whereFilters),
+            'query' => <?= $modelClass ?>::find()->where($whereFilters)->orderBy($orderFields),
             'pagination' => [
                 'pageSize' => $params['limit'],
                 'page' => floor($params['offset']/$params['limit'])
