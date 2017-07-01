@@ -164,13 +164,13 @@ class Generator extends \yii\gii\Generator
         $controllerFile = Yii::getAlias('@' . str_replace('\\', '/', ltrim($this->controllerClass, '\\')) . '.php');
 
         $files = [
-            new CodeFile($controllerFile, $this->render('controller.php')),
+            new CodeFile($controllerFile, $this->render('controller' . ( ($this->template == 'w2ui')?'W2ui':'' ) . '.php')),
         ];
 
-        $apiControllerFile = Yii::getAlias('@' . str_replace('\\', '/', ltrim($this->apiControllerClass, '\\')) . '.php');
-
-        $files[] = new CodeFile($apiControllerFile, $this->render('controllerRest.php'));
-
+        if($this->template == 'w2ui') {
+            $apiControllerFile = Yii::getAlias('@' . str_replace('\\', '/', ltrim($this->apiControllerClass, '\\')) . '.php');
+            $files[] = new CodeFile($apiControllerFile, $this->render('controllerRest.php'));
+        }
         if (!empty($this->searchModelClass)) {
             $searchModel = Yii::getAlias('@' . str_replace('\\', '/', ltrim($this->searchModelClass, '\\') . '.php'));
             $files[] = new CodeFile($searchModel, $this->render('search.php'));
