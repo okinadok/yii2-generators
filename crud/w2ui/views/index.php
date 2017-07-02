@@ -40,8 +40,12 @@ $(function () {
         url: '<?= "<?= \$apiUrl . \$serviceName; ?>" ?>',
         show: { 
             toolbar: true,
-            footer: true
+            footer: true,
+            lineNumbers : true,
+            selectColumn: true,
+            expandColumn: true
         },
+        reorderColumns: true,
         columns: [
 <?php
     $tableColumns = [];
@@ -147,6 +151,9 @@ $(function () {
                     }
                 }
             }
+        },
+        onExpand: function (event) {
+            $('#'+event.box_id).html('<div style="padding: 10px; height: 100px;">No content for a while.</div>');
         }
     });    
 });
